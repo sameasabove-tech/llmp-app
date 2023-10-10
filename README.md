@@ -30,7 +30,20 @@ The architecture has 3 main components:
 - GET "/": Root endpoint showing the model name of the LLM (ModelClass).
 
 
-
+## Project Directory Structure 
+```
+root
+├── README.md
+├── api_server.py
+├── api_server_test_loic.py
+└── src
+    ├── backend
+    │   ├── llm.py
+    │   ├── llm_call.py
+    │   └── llm_dialog.py
+    └── frontend
+        └── gradio_chat_interface.py
+```
 
 ## Running the LLM Server
 
