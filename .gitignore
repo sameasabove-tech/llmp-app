@@ -164,5 +164,6 @@ cython_debug/
 
 
 # Loic ignore block
+/flagged
 **/.DS_Store
 api_server_test_loic.py

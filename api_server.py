@@ -2,7 +2,9 @@
 import os
 import getpass
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.templating import Jinja2Templates 
+
 from torch.cuda import empty_cache
 import uvicorn
 
@@ -75,18 +77,21 @@ print("Setting up the FastAPI app...")
 app = FastAPI()
 # List of all the dialogs recieved by the API server
 dialogs = []
-# Loading up the ModelClass model
+# Loading up the ModelClass instance
 llm = ModelClass()
+    
+
+templates = Jinja2Templates(directory="src/frontend/templates")
 
 @app.get("/")
-def read_root() ->str:
+async def read_root(request: Request):
     """
     Root endpoint to show the model name.
 
     Returns:
         str: The model name of the LLM (ModelClass).
     """
-    return f'SAA-Tech LLM : {llm.model_name}'
+    return templates.TemplateResponse("home.html", {"request":request, "name":"Loic Muhirwa"})
 
 @app.post("/ask")
 async def read_question(llm_call: LLMCall) -> dict:
@@ -182,19 +187,23 @@ async def show_history() -> dict:
     global dialogs
     return {'history': dialogs}
 
-#Gradio app for providing an interactive chat interface
 
+
+
+#Gradio app for providing an interactive chat interface
 interface = create_chat_interface(delete_dialog, llm, dialogs)
 interface.queue(concurrency_count=40)
 CHAT_PATH = '/chat'
 app = gr.mount_gradio_app(app, interface, path=CHAT_PATH)
 
 
+
+
 if __name__ == "__main__":
     print("Starting the API Server ...")
     uvicorn.run(app,
                 host="0.0.0.0",
-                port=5555
+                port=6969
                 )
 
               
