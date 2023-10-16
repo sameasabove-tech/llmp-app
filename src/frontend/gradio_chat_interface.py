@@ -20,7 +20,7 @@ def create_chat_interface(delete_dialog: Callable, llm: ModelClass, dialogs: Lis
     Create a chat interface with the LLM model using the Gradio Blocks
 
     Parameters:
-            delete_dialog (callable): dunction to delete a dialog, used by the clear button in the interface.
+            delete_dialog (callable): function to delete a dialog, used by the clear button in the interface.
             llm (ModelClass): the llm model to call
             dialogs (List[LlamaDialog]): global list of all the active dialogs 
 

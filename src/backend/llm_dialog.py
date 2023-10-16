@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field, validator, computed_field
 
 """
 This script provides functionalities for interacting with the ModelClass-13b language model (LLM) . 
-It includes data models, classes, and utility functions to manage conversations  from the LLM. 
+It includes data models, classes, and utility functions to manage conversations from the LLM. 
 
 Functions:
 1. uuid_factory: Generates and returns a UUID (Universally Unique Identifier).

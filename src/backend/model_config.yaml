@@ -1,0 +1,13 @@
+
+
+# MODEL CONFIG
+
+models:
+  # text_embedding:
+  #   repo: hf
+  #   api_key: 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
+  #   pretrained_model_name: sentence-transformers/all-MiniLM-L6-v2 # can also choose DistilBERT, GPT2 etc...
+  summarization:
+    repo: hf
+    api_key: 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
+    pretrained_model_name: sshleifer/distilbart-cnn-12-6

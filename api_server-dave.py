@@ -7,9 +7,10 @@ from torch.cuda import empty_cache
 import uvicorn
 
 from src.backend.llm_call import LLMCall
-from src.backend.llm import ModelClass
-from src.frontend.gradio_chat_interface import create_chat_interface
-from src.backend.storage.load_db import DocumentDatabase
+# from src.backend.llm import ModelClass
+from src.backend.summarizer import ModelClass
+from src.frontend.gradio_document_input_interface import create_input_document_interface
+from src.backend.storage.database_connections import DocumentDatabase
 
 import gradio as gr
 
@@ -77,8 +78,9 @@ app = FastAPI()
 # List of all the dialogs recieved by the API server
 dialogs = []
 # Loading up the ModelClass model
-llm = ModelClass()
-summarizer_db = DocumentDatabase("chat")
+summarizer = ModelClass()
+summarizer_db = DocumentDatabase("summarizer")
+# print(summarizer_db)
 
 @app.get("/")
 def read_root() ->str:
@@ -88,7 +90,7 @@ def read_root() ->str:
     Returns:
         str: The model name of the LLM (ModelClass).
     """
-    return f'SAA-Tech LLM : {llm.model_name}'
+    return f'SAA-Tech LLM : {summarizer.model_name}'
 
 @app.post("/ask")
 async def read_question(llm_call: LLMCall) -> dict:
@@ -113,82 +115,23 @@ async def get_ask() -> str:
     """
     return 'SAA-Tech LLM , use POST'
 
-@app.get("/clear_history")
-async def clear_history() -> dict:
-    """
-    Endpoint to clear the conversation history. Deletes all dialogs in memory. 
+@app.get("/txt_emb")
+async def doc_2_text_embedding(): # -> np array 
+    pass
 
-    Returns:
-        dict: A dictionary containing a message indicating that the history is cleared, and the number of dialogs removed.
-    """
-    global dialogs
-    dialogs.clear()
-    empty_cache()  # Freeing some of the memory
-    return {"message": 'History cleared, all dialogs removed', 'history': len(dialogs)}
+@app.get("/summarize")
+async def summarize_doc(): #-> str:
+    pass
 
-@app.get("/delete_dialog")
-async def delete_dialog(uuid: str) -> str:
-    """
-    Endpoint to delete a specific dialog.
-
-    Parameters:
-        uuid (str): The UUID of the dialog to delete.
-
-    Returns:
-        str: Contains a string with the outcome.
-    """
-    global dialogs
-    len_dialogs = len(dialogs)
-    if uuid is None:
-        raise(ValueError('Dialog uuid must be provided'))
-    else:
-        dialogs_without_uuid = [ditem for ditem in dialogs if ditem.UUID != uuid]
-        dialogs.clear()
-        dialogs.extend(dialogs_without_uuid) # This is needed because we are working with a global variable
-        if len(dialogs)<len_dialogs:
-            return (f"Dialog {uuid} removed!")
-        else:
-            return(f'Dialog {uuid} not found')
-
-@app.get("/show_dialog")
-async def show_dialog(uuid: str) -> dict:
-    """
-    Endpoint to show the content of a specific dialog.
-
-    Parameters:
-        uuid (str): The UUID of the dialog to display.
-
-    Returns:
-        Dict: Contains a string with the dialog content.
-    """
-    global dialogs
-    if uuid is None:
-        raise(ValueError('Dialog uuid must be provided'))
-    else:
-        dialog = [ditem for ditem in dialogs if ditem.UUID == uuid]
-    if dialog:
-        dialog = dialog[0] if isinstance(dialog, list) else dialog
-    else:
-        raise(Exception("Dialog not found"))
-
-    return {'Dialog': dialog.display_dialog()}
-
-@app.get("/show_history")
-async def show_history() -> dict:
-    """
-    Endpoint to show the conversation history.
-
-    Returns:
-        dict: A dictionary containing the conversation history (dialogs).
-    """
-    global dialogs
-    return {'history': dialogs}
 
 #Gradio app for providing an interactive chat interface
 
-interface = create_chat_interface(delete_dialog, llm, dialogs)
+# interface = demo
+
+# create_chat_interface(demo, llm, dialogs)
+interface = create_input_document_interface(summarizer, summarizer_db)
 interface.queue(concurrency_count=40)
-CHAT_PATH = '/chat'
+CHAT_PATH = '/input'
 app = gr.mount_gradio_app(app, interface, path=CHAT_PATH)
 
 if __name__ == "__main__":
