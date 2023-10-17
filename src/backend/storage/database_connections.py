@@ -22,7 +22,7 @@ class DocumentDatabase:
         pwf_path = Path(__file__)
         self.db_json = TinyDB(pwf_path.parent.parent / f'storage/{self.endpoint}_db.json')
         print(f'{self.endpoint} database has been loaded. \n')
-        print(self.db_json)
+        # print(self.db_json)
 
 
     def write_to_database(self, new_insert) -> None:

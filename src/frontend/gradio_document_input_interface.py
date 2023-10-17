@@ -1,6 +1,6 @@
 import gradio as gr
 from gradio import Blocks
-from src.backend.summarizer import ModelClass
+from src.backend.summarizer import SummarizerClass
 from src.backend.storage.database_connections import DocumentDatabase
 
 '''Gradio app for providing a textbox input interface '''
@@ -11,12 +11,12 @@ CSS : str ="""
 footer {visibility: hidden}
 """
 
-def create_input_document_interface(llm: ModelClass, db: DocumentDatabase) -> Blocks:
+def create_input_document_interface(llm: SummarizerClass, db: DocumentDatabase) -> Blocks:
     """
     Create a input interface to summarize/text embed a document with an LLM model/encoder using Gradio Blocks.
 
     Parameters:
-        llm (ModelClass): the llm model to call
+        llm (SummarizerClass): the llm model to call
         db (DocumentDatabase): the global document database
 
     Returns:

@@ -27,7 +27,7 @@ def uuid_factory() -> str:
     """
     return str(uuid.uuid1())
 
-class ModelClass:
+class SummarizerClass:
 
     MODEL_PATH: str = "sshleifer/distilbart-cnn-12-6"
     MODEL_EOS_TOKENS_IDS: List[int] = [2]

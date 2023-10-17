@@ -9,7 +9,9 @@ import uvicorn
 from src.backend.llm_call import LLMCall
 from src.backend.llm import ModelClass
 from src.frontend.gradio_chat_interface import create_chat_interface
-from src.backend.storage.load_db import DocumentDatabase
+from src.backend.summarizer import SummarizerClass
+from src.frontend.gradio_document_input_interface import create_input_document_interface
+from src.backend.storage.database_connections import DocumentDatabase
 
 import gradio as gr
 
@@ -78,7 +80,9 @@ app = FastAPI()
 dialogs = []
 # Loading up the ModelClass model
 llm = ModelClass()
-summarizer_db = DocumentDatabase("chat")
+summarizer = SummarizerClass()
+# Loading up the DocumentDatabase db
+summarizer_db = DocumentDatabase("summarizer")
 
 @app.get("/")
 def read_root() ->str:
@@ -88,7 +92,7 @@ def read_root() ->str:
     Returns:
         str: The model name of the LLM (ModelClass).
     """
-    return f'SAA-Tech LLM : {llm.model_name}'
+    return f'SAA-Tech LLM : {llm.model_name}, {summarizer.model_name}' 
 
 @app.post("/ask")
 async def read_question(llm_call: LLMCall) -> dict:
@@ -186,10 +190,15 @@ async def show_history() -> dict:
 
 #Gradio app for providing an interactive chat interface
 
-interface = create_chat_interface(delete_dialog, llm, dialogs)
-interface.queue(concurrency_count=40)
+interface_chat = create_chat_interface(delete_dialog, llm, dialogs)
+interface_chat.queue(concurrency_count=40)
 CHAT_PATH = '/chat'
-app = gr.mount_gradio_app(app, interface, path=CHAT_PATH)
+app = gr.mount_gradio_app(app, interface_chat, path=CHAT_PATH)
+
+interface_summarizer = create_input_document_interface(summarizer, summarizer_db)
+interface_summarizer.queue(concurrency_count=40)
+SUMMARIZER_PATH = '/summarize'
+app = gr.mount_gradio_app(app, interface_summarizer, path=SUMMARIZER_PATH)
 
 if __name__ == "__main__":
     print("Starting the API Server ...")
