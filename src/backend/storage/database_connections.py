@@ -33,6 +33,14 @@ class DocumentDatabase:
         """
         self.db_json.insert(new_insert)
 
+    # def generate_uuid(self,):
+        
+    #     self.db_json in 
+
+    #     return True
+
+
+
     def query_database(self): #, document_row) -> list[dict]:
         """_summary_
 

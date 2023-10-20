@@ -8,9 +8,12 @@ import uvicorn
 
 from src.backend.llm_call import LLMCall
 from src.backend.llm import ModelClass
-from src.frontend.gradio_chat_interface import create_chat_interface
 from src.backend.summarizer import SummarizerClass
+from src.backend.organizer import OrganizerClass
+from src.frontend.gradio_chat_interface import create_chat_interface
 from src.frontend.gradio_document_input_interface import create_input_document_interface
+from src.frontend.gradio_organizer_interface import create_organizer_interface
+from src.frontend.gradio_main_page import create_main_page_interface
 from src.backend.storage.database_connections import DocumentDatabase
 
 import gradio as gr
@@ -83,6 +86,10 @@ llm = ModelClass()
 summarizer = SummarizerClass()
 # Loading up the DocumentDatabase db
 summarizer_db = DocumentDatabase("summarizer")
+# Loading up the OrganizerClass model
+organizer = OrganizerClass()
+# Loading up the DocumentDatabase db
+organizer_db = DocumentDatabase("organizer")
 
 @app.get("/")
 def read_root() ->str:
@@ -92,7 +99,7 @@ def read_root() ->str:
     Returns:
         str: The model name of the LLM (ModelClass).
     """
-    return f'SAA-Tech LLM : {llm.model_name}, {summarizer.model_name}' 
+    return  f'SAA-Tech LLM : {llm.model_name}, {summarizer.model_name}' 
 
 @app.post("/ask")
 async def read_question(llm_call: LLMCall) -> dict:
@@ -199,6 +206,19 @@ interface_summarizer = create_input_document_interface(summarizer, summarizer_db
 interface_summarizer.queue(concurrency_count=40)
 SUMMARIZER_PATH = '/summarize'
 app = gr.mount_gradio_app(app, interface_summarizer, path=SUMMARIZER_PATH)
+
+interface_organizer = create_organizer_interface(organizer, organizer_db)
+interface_organizer.queue(concurrency_count=40)
+ORGANIZER_PATH = '/organizer'
+app = gr.mount_gradio_app(app, interface_organizer, path=ORGANIZER_PATH)
+
+# host = "0.0.0.0"
+# endpoint_dict = {'chatbot': CHAT_PATH, 'summarizer': SUMMARIZER_PATH, 'organizer': ORGANIZER_PATH}
+# interface_main_page = create_main_page_interface(endpoint_dict, host)
+# interface_main_page.queue(concurrency_count=40)
+# MAIN_PATH = '/main'
+# app = gr.mount_gradio_app(app, interface_main_page, path=MAIN_PATH)
+
 
 if __name__ == "__main__":
     print("Starting the API Server ...")
